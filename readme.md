@@ -1,5 +1,5 @@
 # Project Title
-Sort Backend learing project
+Short Backend learing project
 
 ## Description
 This project is a backend learning project focused on sorting algorithms. The goal is to provide a practical understanding of backend development and algorithm optimization to myself.
