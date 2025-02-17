@@ -1,13 +1,13 @@
 /**
  * A higher-order function that wraps an asynchronous function and handles any errors that occur.
- * 
+ *
  * @param {Function} func - The asynchronous function to be wrapped.
  * @returns {Function} A function that takes req, res, and next as arguments and handles errors by passing them to the next middleware.
  */
 
 // First method which uses promise to create a async functon and handle the error
 const asyncHandler = (func) => {
-  (req, res, next) => {
+  return (req, res, next) => {
     Promise.resolve(func(req, res, next)).catch((error) => next(error));
   };
 };
@@ -24,4 +24,4 @@ const asyncHandler = (func) => {
 //   }
 // };
 
-export default asyncHandler;
+export { asyncHandler };
