@@ -15,25 +15,28 @@ const registerUser = asyncHandler(async (req, res) => {
   // check user created or not
   // return response
 
+  // get user detail from front end
   const { fullName, email, password, username } = req.body;
   console.log(fullName + " " + email + " " + password + " " + username);
 
-  // Validation
+  // Validation -- Not Empty
   if (
     [fullName, email, password, username].some((field) => field?.trim() === "")
   ) {
     throw new ApiError(400, "All fields are required");
   }
 
-  // Check if user is already registered
-  const existUser = User.findOne({ $or: [{ email }, { username }] });
+  // Check if user is already registered --email or username
+  const existUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existUser) {
     throw new ApiError(409, "User already exist with this email or username");
   }
 
   // Check for images and avatar
   const avatarLocalPath = req.files?.avatar[0]?.path;
+  console.log("👤 AVATAR LOCAL PATH: "+avatarLocalPath);
   const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  console.log("😍 COVER LOCAL PATH: "+ coverImageLocalPath);
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar is required");
   }
@@ -42,7 +45,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
   if (!avatar) {
-    throw new ApiError(400, "Avatar is required");
+    throw new ApiError(400, "Avatar is not uploaded");
   }
 
   // create user object -create entry in database
