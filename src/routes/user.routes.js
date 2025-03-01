@@ -25,6 +25,7 @@ router.route("/login").post(loginUser);
 // SECURED ROUTES
 // Logout a user
 router.route("/logout").post(verifyJWT, logoutUser);
+//Verify the User and Give New Tokens
 router.route("/refresh-token").post(refreshToken);
 
 export default router;
