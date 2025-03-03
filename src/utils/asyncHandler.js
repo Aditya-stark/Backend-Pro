@@ -12,6 +12,8 @@ const asyncHandler = (func) => {
   };
 };
 
+
+
 //--Second method which uses try catch and wrap create a async functon and handle the error
 // const asyncHandler = (func) => async (req, res, next) => {
 //   try {

@@ -17,6 +17,7 @@
  */
 
 import { v2 as cloudinary } from "cloudinary";
+import { extractPublicId } from "cloudinary-build-url";
 import fs from "fs";
 
 //configure cloudinary
@@ -46,4 +47,20 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+const deleteOldImageCloundinary = async (oldImageURL) => {
+  try {
+    if (!oldImageURL) return null;
+
+    const publicId = extractPublicId(oldImageURL);
+    const response = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "auto",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error deleting image from Cloudinary:", error);
+    return null;
+  }
+};
+
+export { uploadOnCloudinary, deleteOldImageCloundinary };
