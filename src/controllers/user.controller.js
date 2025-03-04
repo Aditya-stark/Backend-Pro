@@ -372,6 +372,86 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   return res.status(200).json(200, user, "Cover image updated successfully");
 });
 
+//Get User Channel Profile Info
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+  if (!username) {
+    new ApiError(400, "Failed to load user");
+  }
+
+  //Here we are using aggregation pipeline to get the user channel profile data with some extra fields. Aggregation pipeline is used to perform some operations on the data before returning it.
+  const channel = await User.aggregate([
+    {
+      //STAGE_1: Match (Finding) the user with the username in the database
+      $match: {
+        username: username?.toLowerCase(),
+      },
+    },
+    //STAGE_2: To Find Subscribers
+    // The Subscription collection will look like this:
+    // {
+    //    subscriber: "userId",
+    //    channel: "channelId"
+    // }
+    {
+      $lookup: {
+        from: "subscription", //subscription collection main se data chahiye
+        localField: "_id", //User Collection main buhot saare users honge toh particular user ki id se hum data find karenge subscription collection main channel ke andar
+        foreignField: "channel", //So foreginField channel hoga aur jitne bhi channel main user ki id match hongi woh saari data hume mil jayega
+        as: "subscribers", //aur kaise save karenge as "subscribers"
+      },
+    },
+    //STAGE_3: To Find SubscribedTo Channels
+    {
+      $lookup: {
+        from: "subscription",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        channelSubscribedToCount: {
+          $size: "$subscribedTo",
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        username: 1,
+        subscribersCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+      },
+    },
+  ]);
+
+  if (!channel?.length) {
+    throw new ApiError(404, "Channel does not exist");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, channel[0], "User Channel fetched successfully")
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -382,4 +462,5 @@ export {
   updateAccountUserDetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
 };
