@@ -7,6 +7,7 @@ import {
 } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 // Method for generating access and refresh tokens
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -452,6 +453,68 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     );
 });
 
+// Get User Watch History with LookUp from watchHistory model
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    //STEP_1: Match the user id in mongodb with user id in watchHistory collection
+    {
+      //will match the user id in mongodb with user id in watchHistory collection. createFromHexString is used to convert string id to object id which mongodb uses to find the data
+      $match: {
+        _id: mongoose.Types.ObjectId.createFromHexString(req.user?._id),
+      },
+    },
+    //STEP_2: Lookup the video details from video collection using watchHistory
+    //Here watchHistory in user model is an array of video ids. So we are using $lookup to get the video details from video collection using video id from watchHistory. secondly in each video there is owner field which is user id. we are using $lookup to get the owner(user) details from user collection using owner id from video collection. lastly owner field is filter out using $project to get only required fields from owner(user) collection
+    {
+      $lookup: {
+        from: "video",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        //add more pipeline to get owner details (nested pipeline)
+        pipeline: [
+          {
+            //get owner details from user collection
+            $lookup: {
+              from: "user",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              //more nested pipeline to filter the owner details
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "Watch History Fetched Successfully"
+      )
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -463,4 +526,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
+  getWatchHistory,
 };
