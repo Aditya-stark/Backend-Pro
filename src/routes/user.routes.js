@@ -39,7 +39,7 @@ router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 // Get Current user
 router.route("/current-user").get(verifyJWT, getCurrentUser);
 // Update account details
-router.route("update-details").patch(verifyJWT, updateAccountUserDetails);
+router.route("/update-details").patch(verifyJWT, updateAccountUserDetails);
 
 //Update Avatar
 router

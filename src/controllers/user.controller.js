@@ -167,7 +167,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     req.user._id, //here req.user is coming from verifyJWT middleware
     {
       $unset: {
-        refreshToken: undefined,
+        refreshToken: 1,
       },
     },
     {
@@ -200,6 +200,7 @@ const refreshToken = asyncHandler(async (req, res) => {
     // Get the refresh token from the request body or cookies
     const incomingRefreshToken =
       req.cookies.refreshToken || req.body.refreshToken;
+
     if (!incomingRefreshToken) {
       throw new ApiError(401, "Unauthorized request");
     }
@@ -215,9 +216,10 @@ const refreshToken = asyncHandler(async (req, res) => {
     if (!user) {
       throw new ApiError(404, "User not found Invalid refresh token");
     }
-
+    console.log("decodedRefreshToken=" + incomingRefreshToken);
+    console.log("userRefresh=" + user?.refreshToken);
     // Match the refresh token from the database
-    if (decodedRefreshToken !== user?.refreshToken) {
+    if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Refresh token is expired or invalid");
     }
 
@@ -244,7 +246,7 @@ const refreshToken = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    throw new ApiError(401, "Error while check the " + error.message);
+    throw new ApiError(401, "Error:" + error.message);
   }
 });
 
@@ -370,7 +372,9 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     { new: true }
   ).select("-password");
 
-  return res.status(200).json(200, user, "Cover image updated successfully");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
 
 //Get User Channel Profile Info
