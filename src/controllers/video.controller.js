@@ -2,7 +2,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Video } from "../models/video.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { deleteOldImageCloundinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  deleteOldFileCloundinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -217,10 +220,10 @@ const updatedVideo = asyncHandler(async (req, res) => {
 
   if ([title, description].some((field) => field?.trim() === "")) {
     console.log("Error1");
-    
+
     return res.status(400).json(new ApiError(400, "All fields are required"));
   }
-  
+
   if (!thumbnailLocalPath) {
     console.log("Error2");
     return res.status(400).json(new ApiError(400, "Thumbnail is required"));
@@ -243,7 +246,7 @@ const updatedVideo = asyncHandler(async (req, res) => {
   }
 
   //Delete the old thumbnail from cloudinary
-  await deleteOldImageCloundinary(video.thumbnail);
+  await deleteOldFileCloundinary(video.thumbnail);
 
   // Update the video with the new information
   video.title = title;
@@ -257,4 +260,50 @@ const updatedVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, video, "Video Updated Successfully"));
 });
 
-export { getAllVideos, publishAVideo, getVideoById, updatedVideo };
+// Delete Video by Id
+const deleteVideo = asyncHandler(async (req, res) => {
+  // Get the videoId from the request parameters
+  // Find the video with the given videoId
+  // If the video is not found, return an error response
+  // Check if the user is the owner of the video
+  // Delete the video from the database
+  // Delete the video file and thumbnail from cloudinary
+  // Return a success response
+
+  try {
+    // Get the videoId from the request parameter
+    const { videoId } = req.params;
+
+    // Find the video with the given videoId
+    const video = await Video.findById(videoId);
+
+    // If the video is not found, return an error response
+    if (!video) {
+      return res.status(400).json(new ApiError(400, "Video does not exist"));
+    }
+
+    // Check if the user is the owner of the video
+    if (video.owner.toString() !== req.user._id.toString()) {
+      console.log("You are not allowed to delete this video");
+      return res
+        .status(400)
+        .json(400, "You are not allowed to delete this video");
+    }
+
+    // Delete the video from the database
+    await Video.findByIdAndDelete(videoId);
+
+    // Delete the video file and thumbnail from cloudinary
+    await deleteOldFileCloundinary(video.videoFile);
+    await deleteOldFileCloundinary(video.thumbnail);
+
+    // Return a success response
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Video deleted successfully"));
+  } catch (error) {
+    console.log("Error will deleting Video:" + error);
+  }
+});
+
+export { getAllVideos, publishAVideo, getVideoById, updatedVideo, deleteVideo };

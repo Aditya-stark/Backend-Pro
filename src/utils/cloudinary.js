@@ -47,11 +47,11 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-const deleteOldImageCloundinary = async (oldImageURL) => {
+const deleteOldFileCloundinary = async (oldFileURL) => {
   try {
-    if (!oldImageURL) return null;
+    if (!oldFileURL) return null;
 
-    const publicId = extractPublicId(oldImageURL);
+    const publicId = extractPublicId(oldFileURL);
     const response = await cloudinary.uploader.destroy(publicId, {
       resource_type: "auto",
     });
@@ -63,4 +63,4 @@ const deleteOldImageCloundinary = async (oldImageURL) => {
   }
 };
 
-export { uploadOnCloudinary, deleteOldImageCloundinary };
+export { uploadOnCloudinary, deleteOldFileCloundinary };

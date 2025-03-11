@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import {
-  deleteOldImageCloundinary,
+  deleteOldFileCloundinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -328,7 +328,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
   //Deleting the Old image from the cloudinary
   const oldAvatarURL = req.user?.avatar;
-  await deleteOldImageCloundinary(oldAvatarURL);
+  await deleteOldFileCloundinary(oldAvatarURL);
 
   const user = await User.findByIdAndUpdate(
     req.user?._id,
@@ -358,7 +358,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
   //Delete Old Cover Image from cloudinary
   const oldCoverImageUrl = req.user?.coverImage;
-  await deleteOldImageCloundinary(oldCoverImageUrl);
+  await deleteOldFileCloundinary(oldCoverImageUrl);
 
   //Update new cover image in db
   const user = await User.findByIdAndUpdate(
