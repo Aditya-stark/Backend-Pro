@@ -86,8 +86,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
   if (sortBy === "latest") {
     sort.createdAt = sortType === "asc" ? 1 : -1;
   } else if (sortBy === "oldest") {
-    sort.createdAt = sortType === "asc" ? -1 : 1;
-  } else if (sortBy === "most-view") {
+    sort.createdAt = sortType === "asc" ? 1 : -1;
+  } else if (sortBy === "most-viewed") {
     sort.views = -1;
   } else {
     sort.createdAt = -1; //default latest first
@@ -135,7 +135,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
   // return the video document
 
   // Get information from the req.body
-  const { title, description } = req.body;
+  const { title, description, isPublished } = req.body;
   if ([title, description].some((field) => field?.trim() === "")) {
     return res.status(400).json(new ApiError(400, "All fields are required"));
   }
@@ -159,13 +159,13 @@ const publishAVideo = asyncHandler(async (req, res) => {
     description,
     owner: req.user._id,
     views: 0,
-    isPublised: true,
+    isPublished,
   });
 
   //Return the video document
   return res
     .status(201)
-    .json(new ApiResponse(201, video, "Video Publised succesfully"));
+    .json(new ApiResponse(201, video, "Video Published succesfully"));
 });
 
 // Get Video by Id
@@ -279,6 +279,8 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     // If the video is not found, return an error response
     if (!video) {
+      console.log("Video does not exist");
+
       return res.status(400).json(new ApiError(400, "Video does not exist"));
     }
 
@@ -287,7 +289,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
       console.log("You are not allowed to delete this video");
       return res
         .status(400)
-        .json(400, "You are not allowed to delete this video");
+        .json(new ApiError(403, "You are not allowed to delete this video"));
     }
 
     // Delete the video from the database
@@ -302,8 +304,56 @@ const deleteVideo = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Video deleted successfully"));
   } catch (error) {
-    console.log("Error will deleting Video:" + error);
+    console.log("Error while deleting Video:", error);
+    return res.status(500).json(new ApiError(500, "Failed to delete video"));
   }
 });
 
-export { getAllVideos, publishAVideo, getVideoById, updatedVideo, deleteVideo };
+const togglePublishStatus = asyncHandler(async (req, res) => {
+  try {
+    // Get Video Id from the params
+    // Find the video with the given videoId
+    // If the video is not found, return an error response
+    // Check if the user is the owner of the video
+    // Toggle the publish status of the video
+    // Return the updated video
+
+    // Get Video Id from the params
+    const { videoId } = req.params;
+
+    // Find the video with the given videoId
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).json(new ApiError(404, "Video Not Found"));
+    }
+    //Check if the user is the owner of the video
+    if (video.owner.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json(new ApiError(403, "You are not allowed to update this video"));
+    }
+    //Toggle the publish status of the video
+    video.isPublished = !video.isPublished;
+    await video.save();
+
+    //Return the updated video
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, video, "Publised toggle changed successfully")
+      );
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Error while toggling the video status"));
+  }
+});
+
+export {
+  getAllVideos,
+  publishAVideo,
+  getVideoById,
+  updatedVideo,
+  deleteVideo,
+  togglePublishStatus,
+};

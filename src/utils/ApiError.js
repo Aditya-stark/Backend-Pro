@@ -31,9 +31,18 @@ class ApiError extends Error {
     if (stack) {
       this.stack = stack;
     } else {
-      Error.captureStackTrace(this, this.cosntructor);
+      Error.captureStackTrace(this, this.constructor);
     }
+  }
+  toJSON() {
+    return {
+      statusCode: this.statusCode,
+      message: this.message,
+      errors: this.errors,
+      success: this.success,
+      data: this.data,
+    };
   }
 }
 
-export {ApiError};
+export { ApiError };
