@@ -72,6 +72,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!avatar) {
     throw new ApiError(400, "Avatar is not uploaded");
   }
+  
 
   // create user object -create entry in database
   const user = await User.create({
@@ -216,8 +217,6 @@ const refreshToken = asyncHandler(async (req, res) => {
     if (!user) {
       throw new ApiError(404, "User not found Invalid refresh token");
     }
-    console.log("decodedRefreshToken=" + incomingRefreshToken);
-    console.log("userRefresh=" + user?.refreshToken);
     // Match the refresh token from the database
     if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Refresh token is expired or invalid");

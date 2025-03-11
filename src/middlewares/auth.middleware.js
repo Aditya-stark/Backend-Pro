@@ -19,14 +19,13 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     // Find the user with the id from the token
     const user = await User.findById(decodedToken?._id).select(
       "-password -refreshToken"
-    );
+    );  
 
     if (!user) {
       throw new ApiError(404, "User not found");
     }
 
     req.user = user;
-    console.log("🔐 req.user", req.user);
     next();
   } catch (error) {
     throw new ApiError(401, "ERROR" + error.message);
