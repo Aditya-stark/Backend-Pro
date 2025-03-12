@@ -164,27 +164,35 @@ const getUserTweets = asyncHandler(async (req, res) => {
 });
 
 const updateTweet = asyncHandler(async (req, res) => {
-  // Get tweetId from the req
-  // Find the tweet in db
-  // If not found give error
-  // Validate owner
-  // update tweet
-  // retrun res
+  // Get content from the req
+  const { content } = req.body;
+  const tweet = req.tweet;
 
-  //Get tweetId from the req
-  const { tweetId } = req.params;
-  const 
-  //Find the tweet in db
-  const tweet = await Tweet.findById(tweetId);
-  if (!tweet) {
-    return res.status(404).json(new ApiError(404, "Tweet Not Found"));
-  }
-  //Validate owner
-  if (tweet.owner.toString() !== req.user._id.toString()) {
-    return res.status(403).json(new ApiError(403, "Unauthorised access"));
+  //Validate the content
+  if (!content || content.trim() === "" || content.length > 280) {
+    return res
+      .status(400)
+      .json(
+        new ApiError(
+          400,
+          "Tweet content is required and should be less than 280 characters"
+        )
+      );
   }
   //update tweet
-  // tweet.content = 
+  tweet.content = content;
+  tweet.updatedAt = Date.now();
+  await tweet.save();
+  return res
+    .status(200)
+    .json(new ApiResponse(200, tweet, "Tweet updated successfully"));
 });
 
-export { createTweet, getUserTweets };
+const deleteTweet = asyncHandler(async (req, res) => {
+  req.tweet.remove();
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Tweet deleted successfully"));
+});
+
+export { createTweet, getUserTweets, updateTweet, deleteTweet };

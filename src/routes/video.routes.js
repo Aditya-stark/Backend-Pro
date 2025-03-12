@@ -30,10 +30,10 @@ router.route("/video/:videoId").get(getVideoById);
 //Update Video
 router
   .route("/update/:videoId")
-  .patch(upload.single("thumbnail"), verifiedVideo, verifyJWT, updatedVideo);
+  .patch(upload.single("thumbnail"), verifyJWT, verifiedVideo,  updatedVideo);
 
 //Delete Video
-router.route("/delete/:videoId").delete(verifyJWT, deleteVideo);
+router.route("/delete/:videoId").delete(verifyJWT, verifiedVideo, deleteVideo);
 
 //Toggle Publish Status
 router
