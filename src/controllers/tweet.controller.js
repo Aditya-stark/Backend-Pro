@@ -66,7 +66,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
     // Skip and limit tweets for pagination
     // Lookup owner details from users
     // Lookup likes and comments count
-    // Project only the sields we need
+    // Project only fields we need
     // Count total tweets for pagination info
 
     // Get UserId from params
@@ -128,7 +128,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
           as: "likesCount",
         },
       },
-      //HERE WE NEED TO ADD COMMENTS COUNT AND FETCH COMMENTS DATA (AGGERGATION) (COMPLEX THING🥲)
+      //HERE WE CAN ADD COMMENTS COUNT AND FETCH COMMENTS DATA (AGGERGATION) (COMPLEX THING🥲)
 
       // Project only fields we need
       {

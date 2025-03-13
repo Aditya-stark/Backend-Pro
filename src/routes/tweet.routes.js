@@ -21,7 +21,7 @@ router.route("/").post(verifyJWT, createTweet);
 router.route("/:tweetId").get(verifiedTweet, getParticularTweet);
 
 //Get a User All Tweet
-router.route("/user/:userId").get(getUserTweets);
+router.route("/user/:userId").get(verifyJWT, getUserTweets);
 
 //Tweet Update and Delete Operations
 router
