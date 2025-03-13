@@ -63,7 +63,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
             // Project feilds we only need
             {
               $project: {
-                contents: 1,
+                commentContent: 1,
                 createdAt: 1,
                 updatedAt: 1,
                 ownerDetails: {
@@ -107,4 +107,51 @@ const getVideoComments = asyncHandler(async (req, res) => {
   }
 });
 
-export { getVideoComments };
+const addComment = asyncHandler(async (req, res) => {
+  try {
+    // Get VideoId from req.video
+    // Get commentContent from req.body
+    // Get userId from req.user
+    // Create a new comment
+    // Save the comment
+    // Return the comment
+
+    // Get VideoId from req.params
+    const video = req.video;
+    // Get contents from req.body
+    const { commentContent } = req.body;
+    // Get userdId from req.user
+    const owner = req.user;
+
+    if (
+      !commentContent ||
+      commentContent.trim() === "" ||
+      commentContent.length > 280
+    ) {
+      return res
+        .status(400)
+        .json(
+          new ApiError(
+            400,
+            "Comment content is required and should be less than 280 characters"
+          )
+        );
+    }
+
+    const comment = await Comment.create({
+      commentContent,
+      video,
+      owner,
+    });
+
+    return res
+      .status(201)
+      .json(new ApiResponse(201, comment, "Tweet created successfully"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Error while commenting " + error.message));
+  }
+});
+
+export { getVideoComments, addComment };
