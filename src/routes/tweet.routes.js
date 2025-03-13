@@ -5,6 +5,7 @@ import {
   deleteTweet,
   getUserTweets,
   updateTweet,
+  getParticularTweet,
 } from "../controllers/tweet.controller.js";
 import {
   verifiedTweet,
@@ -16,9 +17,13 @@ const router = Router();
 //Create Tweet
 router.route("/").post(verifyJWT, createTweet);
 
-//Get User All Tweet
+//Get a particular tweet
+router.route("/:tweetId").get(verifiedTweet, getParticularTweet);
+
+//Get a User All Tweet
 router.route("/user/:userId").get(getUserTweets);
 
+//Tweet Update and Delete Operations
 router
   .route("/:tweetId")
   .patch(verifyJWT, verifiedTweet, verifiedTweetOwnership, updateTweet)

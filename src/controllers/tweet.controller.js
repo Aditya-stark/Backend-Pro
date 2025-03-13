@@ -41,6 +41,22 @@ const createTweet = asyncHandler(async (req, res) => {
   }
 });
 
+//Get a Particular tweet by tweetId
+const getParticularTweet = asyncHandler(async (req, res) => {
+  try {
+    const tweet = req.tweet;
+    await tweet.populate("owner", "username avatar");
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, tweet, "Tweet fetched successfully"));
+  } catch (error) {
+    return res
+      .status(400)
+      .json(new ApiError(400, "Error while get tweet" + error.message));
+  }
+});
+
 const getUserTweets = asyncHandler(async (req, res) => {
   try {
     // Get UserId from params
@@ -189,10 +205,16 @@ const updateTweet = asyncHandler(async (req, res) => {
 });
 
 const deleteTweet = asyncHandler(async (req, res) => {
-  req.tweet.remove();
+  await req.tweet.deleteOne();
   return res
     .status(200)
     .json(new ApiResponse(200, null, "Tweet deleted successfully"));
 });
 
-export { createTweet, getUserTweets, updateTweet, deleteTweet };
+export {
+  createTweet,
+  getUserTweets,
+  updateTweet,
+  deleteTweet,
+  getParticularTweet,
+};
