@@ -117,11 +117,11 @@ const addComment = asyncHandler(async (req, res) => {
     // Return the comment
 
     // Get VideoId from req.params
-    const video = req.video;
+    const videoId = req.video._id;
     // Get contents from req.body
     const { commentContent } = req.body;
     // Get userdId from req.user
-    const owner = req.user;
+    const ownerId = req.user._id;
 
     if (
       !commentContent ||
@@ -140,8 +140,8 @@ const addComment = asyncHandler(async (req, res) => {
 
     const comment = await Comment.create({
       commentContent,
-      video,
-      owner,
+      video: videoId,
+      owner: ownerId,
     });
 
     return res
