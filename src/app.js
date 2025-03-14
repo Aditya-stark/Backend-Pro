@@ -36,6 +36,7 @@ import userRouter from "./routes/user.routes.js";
 import videoRouter from "./routes/video.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
 import commentRouter from "./routes/comment.routes.js";
+import subscriptionRouter from "./routes/subscription.routes.js";
 
 //User Routes
 app.use("/api/v1/users", userRouter);
@@ -46,5 +47,7 @@ app.use("/api/v1/videos", videoRouter);
 app.use("/api/v1/tweets", tweetRouter);
 //Comment Routes
 app.use("/api/v1/comments", commentRouter);
+//Subscription Routes
+app.use("/api/v1/subscriptions", subscriptionRouter);
 
 export default app;
