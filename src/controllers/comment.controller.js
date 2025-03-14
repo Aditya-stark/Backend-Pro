@@ -107,6 +107,20 @@ const getVideoComments = asyncHandler(async (req, res) => {
   }
 });
 
+const getParticularComment = asyncHandler(async (req, res) => {
+  try {
+    const comment = req.comment;
+    await comment.populate("owner", "_id username avatar");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, comment, "Comment fetched"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Error while fetching the comment"));
+  }
+});
+
 const addComment = asyncHandler(async (req, res) => {
   try {
     // Get VideoId from req.video
@@ -187,4 +201,23 @@ const updateComment = asyncHandler(async (req, res) => {
   }
 });
 
-export { getVideoComments, addComment, updateComment };
+const deleteComment = asyncHandler(async (req, res) => {
+  try {
+    await req.comment.deleteOne();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Comment deleted successfully"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Error while deleting the comment"));
+  }
+});
+
+export {
+  getVideoComments,
+  addComment,
+  updateComment,
+  deleteComment,
+  getParticularComment,
+};

@@ -5,6 +5,8 @@ import {
   addComment,
   getVideoComments,
   updateComment,
+  deleteComment,
+  getParticularComment,
 } from "../controllers/comment.controller.js";
 import {
   verifiedComment,
@@ -21,6 +23,8 @@ router
 
 router
   .route("/:commentId")
-  .patch(verifyJWT, verifiedComment, verifiedCommentOwnerShip, updateComment);
+  .get(verifiedComment, getParticularComment)
+  .patch(verifyJWT, verifiedComment, verifiedCommentOwnerShip, updateComment)
+  .delete(verifyJWT, verifiedComment, verifiedCommentOwnerShip, deleteComment);
 
 export default router;
