@@ -154,4 +154,37 @@ const addComment = asyncHandler(async (req, res) => {
   }
 });
 
-export { getVideoComments, addComment };
+const updateComment = asyncHandler(async (req, res) => {
+  try {
+    const comment = req.comment;
+    const { commentContent } = req.body;
+
+    if (
+      !commentContent ||
+      commentContent.trim() === "" ||
+      commentContent.length > 280
+    ) {
+      return res
+        .status(400)
+        .json(
+          new ApiError(
+            400,
+            "Comment content is required and should be less than 280 characters"
+          )
+        );
+    }
+
+    comment.commentContent = commentContent;
+    comment.updatedAt = Date.now();
+    await comment.save();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, comment, "Comment updated successfully"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Error while updating the comment"));
+  }
+});
+
+export { getVideoComments, addComment, updateComment };

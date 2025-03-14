@@ -4,7 +4,12 @@ import { verifiedVideo } from "../middlewares/video.middleware.js";
 import {
   addComment,
   getVideoComments,
+  updateComment,
 } from "../controllers/comment.controller.js";
+import {
+  verifiedComment,
+  verifiedCommentOwnerShip,
+} from "../middlewares/comment.middleware.js";
 
 const router = Router();
 
@@ -13,5 +18,9 @@ router
   .route("/video/:videoId")
   .get(verifiedVideo, getVideoComments)
   .post(verifyJWT, verifiedVideo, addComment);
+
+router
+  .route("/:commentId")
+  .patch(verifyJWT, verifiedComment, verifiedCommentOwnerShip, updateComment);
 
 export default router;
